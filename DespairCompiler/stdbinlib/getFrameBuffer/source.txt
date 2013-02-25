@@ -1,0 +1,7 @@
+;void getFrameBuffer(pointer byte)
+
+movp reg[0], (reg[255])
+
+out 4, lreg[0]
+
+ret

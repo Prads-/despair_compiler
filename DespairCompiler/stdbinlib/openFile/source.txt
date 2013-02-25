@@ -1,0 +1,45 @@
+;openFile(pointer file, string, int)
+
+;Create a new file stream object
+out 39, byte 0
+in lreg[0], 15
+
+mov reg[1], reg[255]
+add reg[1], 8		
+movp reg[1], (reg[1])	;string - path
+
+mov reg[2], reg[255]
+add reg[2], 16
+mov reg[2], (reg[2])	;int - 0:text file, 1:binary file
+
+out 15, lreg[0]
+out 23, lreg[1]
+cmpe reg[2], 0
+jcr reg[2], LBL_BINARY
+
+;Text File
+out 39, byte 4
+jmpr LBL_CHECK
+
+LBL_BINARY:
+out 39, byte 5
+
+LBL_CHECK:
+in lreg[2], 31
+cmpe reg[2], 1
+jcr reg[2], LBL_FAIL
+
+;Success
+movp reg[2], (reg[255])
+movp (reg[2]), reg[0]	;Move the file object to the file pointer
+mov reg[0], 1		;return value
+jmpr LBL_RETURN
+
+LBL_FAIL:
+out 39, byte 1		;Delete the file stream object
+mov reg[0], 0
+
+LBL_RETURN:
+out 40, lreg[1]
+out 64, byte 1
+ret

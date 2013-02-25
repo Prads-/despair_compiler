@@ -1,0 +1,318 @@
+group BMPHeader {
+	byte signature[2];
+	int size, reserved, imgOffset, sizeOfBIH, width, height;
+	byte numOfPlanes[2], bitDepth[2];
+	int compression, imageSize, hPixPerM, vPixPerM, numOfColors, numOfImpColors;
+	int redMask, greenMask, blueMask, alphaMask;
+}
+
+public int loadImageFromBMP(string path, pointer image imgOut) {
+	//Open Bitmap File
+	file bmpFile;
+	if (openFile(bmpFile, path, 1) == 0) {
+		return 0;
+	}
+	
+	//Get Bitmap Header
+	BMPHeader header;
+	readFile(bmpFile, weakPtr header, sizeof(BMPHeader));
+	
+	//Only BI_RGB ad BI_BITFIELDS compressions are supported
+	//Only 16, 24, and 32 bits bitmaps are supported
+	if (header.compression != 0 && header.compression != 3 && header.bitDepth != 32 && header.bitDepth != 24 && header.bitDepth != 16) {
+		closeFile(bmpFile);
+		return 0;
+	}
+	
+	//Get number of bytes per row, including padding bytes
+	int numOfBytesInRow = header.width * ((header.bitDepth | (header.bitDepth[1] << 8)) / 8);
+	int modResult = numOfBytesInRow % 4;
+	if (modResult) {
+		numOfBytesInRow = numOfBytesInRow + 4 - modResult;
+	}
+
+	//Fix the header image size
+	header.imageSize = numOfBytesInRow * header.height;
+	if (header.imageSize < 0) {
+		 header.imageSize = header.imageSize * -1;
+	}
+	
+	//Get the pixel array
+	pointer byte tempPixelArray = new byte[header.imageSize];
+	setFileCursor(bmpFile, header.imgOffset);
+	readFile(bmpFile, tempPixelArray, header.imageSize);
+	closeFile(bmpFile);
+
+	//If height is positive, image is upside down
+	if (header.height > 0) {
+		//Swap the bytes from top and bottom rows
+		int frontRowPointer = 0, backRowPointer = (header.height - 1) * numOfBytesInRow;
+		int i = 0;
+		while (i < header.height / 2) {
+			int fp = frontRowPointer, bp = backRowPointer, j = 0;
+			while (j < numOfBytesInRow) {
+				tempPixelArray[fp] = tempPixelArray[fp] ^ tempPixelArray[bp];
+				tempPixelArray[bp] = tempPixelArray[fp] ^ tempPixelArray[bp];
+				tempPixelArray[fp] = tempPixelArray[fp] ^ tempPixelArray[bp];
+				fp = fp + 1;
+				bp = bp + 1;
+				j = j + 1;
+			}
+			frontRowPointer = frontRowPointer + numOfBytesInRow;
+			backRowPointer = backRowPointer - numOfBytesInRow;
+			i = i + 1;
+		}
+	} else {
+		header.height = header.height * -1;
+	}
+
+	//Create image structure	
+	pointer byte img = new byte[header.width * header.height * 4 + 20];
+	pointer int imgDimension;
+	-imgDimension = img;
+	imgDimension = header.width;
+	-imgDimension = img[4];	
+	imgDimension = header.height;
+	
+	//Put the RGB data in image stucture
+	pointer byte pixelArray;
+	-pixelArray = img[20];	
+	if (header.compression == 0) { //BI_RGB
+		if (header.bitDepth == 16) {
+			rgb16(pixelArray, header, tempPixelArray, numOfBytesInRow);
+		} else if (header.bitDepth == 24) {
+			rgb24(pixelArray, header, tempPixelArray, numOfBytesInRow);
+		} else {
+			rgb32(pixelArray, header, tempPixelArray, numOfBytesInRow);
+		}
+	} else { //BI_BITFILED
+		if (header.bitDepth == 16) {
+			bitFields16(pixelArray, header, tempPixelArray, numOfBytesInRow);
+		} else if (header.bitDepth == 24) {
+			bitFields24(pixelArray, header, tempPixelArray, numOfBytesInRow);
+		} else {
+			bitFields32(pixelArray, header, tempPixelArray, numOfBytesInRow);
+		}
+	}	
+
+	delete tempPixelArray;
+	pointer image imgStructure;
+	-imgStructure = img;
+	imgOut = imgStructure;
+	return 1;
+}
+
+void rgb16(pointer byte pixelArrayOut, pointer BMPHeader header, pointer byte tempPixelArray, int numOfBytesInRow) {
+	//Get number of bytes per row excluding padding
+	int exNumOfByteInRow = header.width * ((header.bitDepth | (header.bitDepth[1] << 8)) / 8);
+
+	int srcByteCounter = 0, destByteCounter = 0;
+
+	//Copy the RGB values from tempPixelArray to pixelArrayOut
+	int y = 0;
+	while (y < header.height) {
+		srcByteCounter = y * numOfBytesInRow;
+		int x = 0;
+		while (x < exNumOfByteInRow) {
+			int rgb = tempPixelArray[srcByteCounter] | (tempPixelArray[srcByteCounter + 1] << 8);
+			int r = (rgb & 31744) >> 10, g = (rgb & 992) >> 5, b = rgb & 31;		
+			srcByteCounter = srcByteCounter + 2;
+
+			pixelArrayOut[destByteCounter] = (255 / 31) * b;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = (255 / 31) * g;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = (255 / 31) * r;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = 0;
+			destByteCounter = destByteCounter + 1;
+
+			x = x + 2;	
+		}
+		y = y + 1;
+	}	
+}
+
+void rgb24(pointer byte pixelArrayOut, pointer BMPHeader header, pointer byte tempPixelArray, int numOfBytesInRow) {
+	//Get number of bytes per row excluding padding
+	int exNumOfByteInRow = header.width * ((header.bitDepth | (header.bitDepth[1] << 8)) / 8);
+
+	int srcByteCounter = 0, destByteCounter = 0;
+
+	//Copy the RGB values from tempPixelArray to pixelArrayOut
+	int y = 0;
+	while (y < header.height) {
+		srcByteCounter = y * numOfBytesInRow;
+		int x = 0;
+		while (x < exNumOfByteInRow) {
+			pixelArrayOut[destByteCounter] = tempPixelArray[srcByteCounter];
+			srcByteCounter = srcByteCounter + 1;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = tempPixelArray[srcByteCounter];
+			srcByteCounter = srcByteCounter + 1;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = tempPixelArray[srcByteCounter];
+			srcByteCounter = srcByteCounter + 1;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = 0;
+			destByteCounter = destByteCounter + 1;
+
+			x = x + 3;	
+		}
+		y = y + 1;
+	}	
+}
+
+void rgb32(pointer byte pixelArrayOut, pointer BMPHeader header, pointer byte tempPixelArray, int numOfBytesInRow) {
+	//Get number of bytes per row excluding padding
+	int exNumOfByteInRow = header.width * ((header.bitDepth | (header.bitDepth[1] << 8)) / 8);
+
+	int srcByteCounter = 0, destByteCounter = 0;
+
+	//Copy the RGB values from tempPixelArray to pixelArrayOut
+	int y = 0;
+	while (y < header.height) {
+		srcByteCounter = y * numOfBytesInRow;
+		int x = 0;
+		while (x < exNumOfByteInRow) {
+			pixelArrayOut[destByteCounter] = tempPixelArray[srcByteCounter];
+			srcByteCounter = srcByteCounter + 1;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = tempPixelArray[srcByteCounter];
+			srcByteCounter = srcByteCounter + 1;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = tempPixelArray[srcByteCounter];
+			srcByteCounter = srcByteCounter + 1;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = tempPixelArray[srcByteCounter];
+			srcByteCounter = srcByteCounter + 1;
+			destByteCounter = destByteCounter + 1;
+
+			x = x + 4;	
+		}
+		y = y + 1;
+	}	
+}
+
+void bitFields16(pointer byte pixelArrayOut, pointer BMPHeader header, pointer byte tempPixelArray, int numOfBytesInRow) {
+	//Get number of bytes per row excluding padding
+	int exNumOfByteInRow = header.width * ((header.bitDepth | (header.bitDepth[1] << 8)) / 8);
+
+	int srcByteCounter = 0, destByteCounter = 0;
+
+	//Get Mask shift values
+	int redShiftValue = findTrailingZeros(header.redMask), greenShiftValue = findTrailingZeros(header.greenMask), blueShiftValue = findTrailingZeros(header.blueMask), alphaShiftValue = findTrailingZeros(header.alphaMask);
+
+	//Copy the RGB values from tempPixelArray to pixelArrayOut
+	int y = 0;
+	while (y < header.height) {
+		srcByteCounter = y * numOfBytesInRow;
+		int x = 0;
+		while (x < exNumOfByteInRow) {
+			int rgb = tempPixelArray[srcByteCounter] | (tempPixelArray[srcByteCounter + 1] << 8);
+			srcByteCounter = srcByteCounter + 2;
+			
+			int r = (rgb & header.redMask) >> redShiftValue, g = (rgb & header.greenMask) >> greenShiftValue, b = (rgb & header.blueMask) >> blueShiftValue;
+
+			pixelArrayOut[destByteCounter] = (255 / 31) * b;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = (255 / 31) * g;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = (255 / 31) * r;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = 0;
+			destByteCounter = destByteCounter + 1;
+
+
+			x = x + 2;	
+		}
+		y = y + 1;
+	}	
+}
+
+void bitFields24(pointer byte pixelArrayOut, pointer BMPHeader header, pointer byte tempPixelArray, int numOfBytesInRow) {
+	//Get number of bytes per row excluding padding
+	int exNumOfByteInRow = header.width * ((header.bitDepth | (header.bitDepth[1] << 8)) / 8);
+
+	int srcByteCounter = 0, destByteCounter = 0;
+
+	//Get Mask shift values
+	int redShiftValue = findTrailingZeros(header.redMask), greenShiftValue = findTrailingZeros(header.greenMask), blueShiftValue = findTrailingZeros(header.blueMask), alphaShiftValue = findTrailingZeros(header.alphaMask);
+
+	//Copy the RGB values from tempPixelArray to pixelArrayOut
+	int y = 0;
+	while (y < header.height) {
+		srcByteCounter = y * numOfBytesInRow;
+		int x = 0;
+		while (x < exNumOfByteInRow) {
+			int rgb = tempPixelArray[srcByteCounter] | (tempPixelArray[srcByteCounter + 1] << 8) | (tempPixelArray[srcByteCounter + 2] << 16);
+			srcByteCounter = srcByteCounter + 3;
+			
+			int r = (rgb & header.redMask) >> redShiftValue, g = (rgb & header.greenMask) >> greenShiftValue, b = (rgb & header.blueMask) >> blueShiftValue;
+
+			pixelArrayOut[destByteCounter] = b;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = g;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = r;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = 0;
+			destByteCounter = destByteCounter + 1;
+
+			x = x + 3;	
+		}
+		y = y + 1;
+	}	
+}
+
+void bitFields32(pointer byte pixelArrayOut, pointer BMPHeader header, pointer byte tempPixelArray, int numOfBytesInRow) {
+	//Get number of bytes per row excluding padding
+	int exNumOfByteInRow = header.width * ((header.bitDepth | (header.bitDepth[1] << 8)) / 8);
+
+	int srcByteCounter = 0, destByteCounter = 0;
+
+	//Get Mask shift values
+	int redShiftValue = findTrailingZeros(header.redMask), greenShiftValue = findTrailingZeros(header.greenMask), blueShiftValue = findTrailingZeros(header.blueMask), alphaShiftValue = findTrailingZeros(header.alphaMask);
+
+	//Copy the RGB values from tempPixelArray to pixelArrayOut
+	int y = 0;
+	while (y < header.height) {
+		srcByteCounter = y * numOfBytesInRow;
+		int x = 0;
+		while (x < exNumOfByteInRow) {
+			pointer int rgb;
+			-rgb = tempPixelArray[srcByteCounter];
+			srcByteCounter = srcByteCounter + 4;
+			
+			
+			int r = (rgb & header.redMask) >> redShiftValue, g = (rgb & header.greenMask) >> greenShiftValue, b = (rgb & header.blueMask) >> blueShiftValue, a = (rgb & header.alphaMask) >> alphaShiftValue;
+
+			pixelArrayOut[destByteCounter] = b;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = g;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = r;
+			destByteCounter = destByteCounter + 1;
+			pixelArrayOut[destByteCounter] = a;
+			destByteCounter = destByteCounter + 1;
+
+			x = x + 4;	
+		}
+		y = y + 1;
+	}	
+}
+
+int findTrailingZeros(int val) {
+	if (val == 0) {
+		return 0;
+	}
+
+	int retVal = 0, bitCounter = 1;
+
+	while ((val & bitCounter) == 0) {
+		retVal = retVal + 1;
+		bitCounter =  bitCounter << 1;
+	}
+
+	return retVal;
+}

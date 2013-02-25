@@ -1,0 +1,60 @@
+movp reg[0], (reg[255])	;image
+
+mov reg[1], reg[255]
+add reg[1], 8
+mov reg[1], (reg[1])	;flip x : bool
+
+mov reg[2], reg[255]
+add reg[2], 12
+mov reg[2], (reg[2])	;flip y : bool
+
+mov reg[3], reg[255]
+add reg[3], 16
+mov reg[3], (reg[3])	;alpha blending : bool
+
+mov reg[4], reg[255]
+add reg[4], 20
+mov reg[4], (reg[4])	;rotation : int
+
+;Get the last bits of all booleans
+and reg[1], 1
+and reg[2], 1
+and reg[3], 1
+
+;Shift booleans into position
+shl reg[1], byte 2
+shl reg[2], byte 3
+shl reg[3], byte 1
+
+;GPU effects port value
+xor reg[5], reg[5]
+or reg[5], reg[1]
+or reg[5], reg[2]
+or reg[5], reg[3]
+
+;fix rotation
+mov reg[6], 0
+cmpe reg[6], reg[4]
+jcr reg[6], there_is_a_rotation
+jmpr rotation_out
+
+there_is_a_rotation:
+or reg[5], 1
+out 1, sreg[4] 
+
+rotation_out:
+out 0, breg[5]
+
+;x coordinate
+mov reg[1], reg[255]
+add reg[1], 24
+mov reg[1], (reg[1])
+
+;y coordinate
+mov reg[2], reg[255]
+add reg[2], 28
+mov reg[2], (reg[2])
+
+drw reg[1], reg[2], reg[0]
+
+ret

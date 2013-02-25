@@ -1,0 +1,18 @@
+;writeFile(file, pointer byte, int)
+
+movp reg[0], (reg[255])		;file
+
+mov reg[1], reg[255]
+add reg[1], 8
+movp reg[1], (reg[1])		;buffer
+
+mov reg[2], reg[255]
+add reg[2], 16
+movp reg[2], (reg[1])		;size
+
+out 15, lreg[0]
+out 23, lreg[1]
+out 31, lreg[2]
+out 39, byte 9
+
+ret

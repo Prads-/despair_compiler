@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Header Files\Tokenizer">
+      <UniqueIdentifier>{36414a87-f69c-4a8f-b8a6-c7c8bcd5aa62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Tokenizer">
+      <UniqueIdentifier>{37ba0e3c-85ee-4dbc-a874-f0da3e9d121e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Token Module">
+      <UniqueIdentifier>{72b51a1a-8921-42d3-87fa-b467c33a08f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Token Module">
+      <UniqueIdentifier>{de6ab2d0-9401-48b9-bdfd-8144fe9b2152}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Symbol Table">
+      <UniqueIdentifier>{b8bf766c-c519-4a17-b651-4cbb6ca080be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Symbol Table">
+      <UniqueIdentifier>{074c6d2b-3a91-4160-8561-d854eccf0746}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Parser">
+      <UniqueIdentifier>{93fd2b3a-762a-4c3b-8dec-a3ec20d1fb25}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Parser">
+      <UniqueIdentifier>{7b114345-9e09-437a-b8b6-361c02eae658}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Data Structures and Algorithms">
+      <UniqueIdentifier>{19391e0a-15df-44f0-9e4b-34c6f17c3fa3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Debugging">
+      <UniqueIdentifier>{1d818740-3b1e-473e-8a1a-ad1d4776b9f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Debugging">
+      <UniqueIdentifier>{b3edb7f1-69a0-4a11-972c-74019fb98744}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Code Generation">
+      <UniqueIdentifier>{c803520a-8515-4e99-9e0c-bfeef67c8476}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Code Generation">
+      <UniqueIdentifier>{d4092829-191a-4a70-9335-fbfb4dba96a3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Data Structures and Algorithms">
+      <UniqueIdentifier>{80c6f4fb-b913-49d7-9c49-771aa053284a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Exception">
+      <UniqueIdentifier>{b574dbe5-eedf-418c-991c-a4beb26f26ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Preprocessor">
+      <UniqueIdentifier>{4c80ecd2-6fc8-4a82-88c3-f1f12f21997e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Preprocessor">
+      <UniqueIdentifier>{be39c0ca-9212-4ef6-ad68-c5a7a8949698}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="TokenTypes.h">
+      <Filter>Header Files\Tokenizer</Filter>
+    </ClInclude>
+    <ClInclude Include="declarations.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Token.h">
+      <Filter>Header Files\Tokenizer</Filter>
+    </ClInclude>
+    <ClInclude Include="Tokenizer.h">
+      <Filter>Header Files\Tokenizer</Filter>
+    </ClInclude>
+    <ClInclude Include="TokenLiner.h">
+      <Filter>Header Files\Tokenizer</Filter>
+    </ClInclude>
+    <ClInclude Include="TokenModule.h">
+      <Filter>Header Files\Token Module</Filter>
+    </ClInclude>
+    <ClInclude Include="groupTable.h">
+      <Filter>Header Files\Symbol Table</Filter>
+    </ClInclude>
+    <ClInclude Include="errorStrings.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="identTable.h">
+      <Filter>Header Files\Symbol Table</Filter>
+    </ClInclude>
+    <ClInclude Include="identifierDataType.h">
+      <Filter>Header Files\Symbol Table</Filter>
+    </ClInclude>
+    <ClInclude Include="functionTable.h">
+      <Filter>Header Files\Symbol Table</Filter>
+    </ClInclude>
+    <ClInclude Include="symbolTable.h">
+      <Filter>Header Files\Symbol Table</Filter>
+    </ClInclude>
+    <ClInclude Include="expressionParser.h">
+      <Filter>Header Files\Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="intermediateRepresentation.h">
+      <Filter>Header Files\Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="customStack.h">
+      <Filter>Header Files\Data Structures and Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="instructionsSet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="parseModule.h">
+      <Filter>Header Files\Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="stringExtension.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ExpressionToken.h">
+      <Filter>Header Files\Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="debug_disassembler.h">
+      <Filter>Header Files\Debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="debug_opcodeToStrTable.h">
+      <Filter>Header Files\Debugging</Filter>
+    </ClInclude>
+    <ClInclude Include="codeGenerator.h">
+      <Filter>Header Files\Code Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="sizeAndAddressResolver.h">
+      <Filter>Header Files\Code Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="functionPrologueEpilogue.h">
+      <Filter>Header Files\Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="mainFunction.h">
+      <Filter>Header Files\Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="codeContainer.h">
+      <Filter>Header Files\Data Structures and Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="headerGenerator.h">
+      <Filter>Header Files\Code Generation</Filter>
+    </ClInclude>
+    <ClInclude Include="sha256.h">
+      <Filter>Header Files\Data Structures and Algorithms</Filter>
+    </ClInclude>
+    <ClInclude Include="lockableException.h">
+      <Filter>Header Files\Exception</Filter>
+    </ClInclude>
+    <ClInclude Include="stdBinLib.h">
+      <Filter>Header Files\Symbol Table</Filter>
+    </ClInclude>
+    <ClInclude Include="portAddress.h">
+      <Filter>Header Files\Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="preprocessor.h">
+      <Filter>Header Files\Preprocessor</Filter>
+    </ClInclude>
+    <ClInclude Include="constCharTable.h">
+      <Filter>Header Files\Symbol Table</Filter>
+    </ClInclude>
+    <ClInclude Include="parseHelper.h">
+      <Filter>Header Files\Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="stringParser.h">
+      <Filter>Header Files\Parser</Filter>
+    </ClInclude>
+    <ClInclude Include="constTable.h">
+      <Filter>Header Files\Symbol Table</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Tokenizer.cpp">
+      <Filter>Source Files\Tokenizer</Filter>
+    </ClCompile>
+    <ClCompile Include="TokenLiner.cpp">
+      <Filter>Source Files\Tokenizer</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TokenModule.cpp">
+      <Filter>Source Files\Token Module</Filter>
+    </ClCompile>
+    <ClCompile Include="groupTable.cpp">
+      <Filter>Source Files\Symbol Table</Filter>
+    </ClCompile>
+    <ClCompile Include="symbolTable.cpp">
+      <Filter>Source Files\Symbol Table</Filter>
+    </ClCompile>
+    <ClCompile Include="identifierDataType.cpp">
+      <Filter>Source Files\Symbol Table</Filter>
+    </ClCompile>
+    <ClCompile Include="expressionParser.cpp">
+      <Filter>Source Files\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="parseModule.cpp">
+      <Filter>Source Files\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="stringExtension.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="intermediateRepresentation.cpp">
+      <Filter>Source Files\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="debug_opcodeToStrTable.cpp">
+      <Filter>Source Files\Debugging</Filter>
+    </ClCompile>
+    <ClCompile Include="debug_disassembler.cpp">
+      <Filter>Source Files\Debugging</Filter>
+    </ClCompile>
+    <ClCompile Include="codeGenerator.cpp">
+      <Filter>Source Files\Code Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="sizeAndAddressResolver.cpp">
+      <Filter>Source Files\Code Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="functionPrologueEpilogue.cpp">
+      <Filter>Source Files\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="mainFunction.cpp">
+      <Filter>Source Files\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="codeContainer.cpp">
+      <Filter>Source Files\Data Structures and Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="headerGenerator.cpp">
+      <Filter>Source Files\Code Generation</Filter>
+    </ClCompile>
+    <ClCompile Include="sha256.cpp">
+      <Filter>Source Files\Data Structures and Algorithms</Filter>
+    </ClCompile>
+    <ClCompile Include="stdBinLib.cpp">
+      <Filter>Source Files\Symbol Table</Filter>
+    </ClCompile>
+    <ClCompile Include="preprocessor.cpp">
+      <Filter>Source Files\Preprocessor</Filter>
+    </ClCompile>
+    <ClCompile Include="parseHelper.cpp">
+      <Filter>Source Files\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="stringParser.cpp">
+      <Filter>Source Files\Parser</Filter>
+    </ClCompile>
+    <ClCompile Include="identTable.cpp">
+      <Filter>Source Files\Symbol Table</Filter>
+    </ClCompile>
+    <ClCompile Include="constTable.cpp">
+      <Filter>Source Files\Symbol Table</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

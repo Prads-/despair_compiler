@@ -1,0 +1,13 @@
+;setFileCursor(file, int)
+
+movp reg[0], (reg[255])		;file
+
+mov reg[1], reg[255]
+add reg[1], 8
+mov reg[1], (reg[1])		;position
+
+out 15, lreg[0]
+out 23, lreg[1]
+out 39, byte 3
+
+ret

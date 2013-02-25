@@ -1,0 +1,8 @@
+;int getKeyStatus(int)
+
+mov reg[0], (reg[255])	;Ascii code
+
+out 5, breg[0]
+in breg[0], 5
+
+ret

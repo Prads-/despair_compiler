@@ -1,0 +1,28 @@
+mov reg[1], reg[255]
+add reg[1], 8 		
+movp reg[1], (reg[1])	;source image
+
+mov reg[2], (reg[1]) 	;width of source image
+
+mov reg[3], reg[1]
+add reg[3], 4
+mov reg[3], (reg[3])	;height of source image
+
+mul reg[2], reg[3]
+mul reg[2], 4		;size of image in bytes
+add reg[2], 20		;first 8 bytes are the width and height of the image, and 12 reserved bytes
+
+;Allocate memory for destination image
+out 6, lreg[2]
+in lreg[0], 6
+
+;Put the allocated memory pointer to the destination image
+movp reg[3], (reg[255])
+movp (reg[3]), reg[0]
+
+;DMA transfer from source to destination
+out 66, lreg[1]		;source
+out 74, lreg[0]		;destination
+out 82, reg[2]
+
+ret

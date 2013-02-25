@@ -1,0 +1,3 @@
+void
+setFrameBuffer
+pointer byte

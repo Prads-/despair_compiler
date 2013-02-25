@@ -1,0 +1,9 @@
+;closeFile(file)
+
+movp reg[0], (reg[255])	;file
+
+out 15, lreg[0]
+out 39, byte 6		;close file
+out 39, byte 1		;destroy file object
+
+ret

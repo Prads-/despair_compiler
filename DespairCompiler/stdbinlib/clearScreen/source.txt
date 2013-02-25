@@ -1,0 +1,7 @@
+;void clearScreen(int)
+
+mov reg[0], (reg[255])		;XRGB color code
+
+out 91, reg[0]
+
+ret
