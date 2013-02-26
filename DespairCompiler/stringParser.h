@@ -16,7 +16,7 @@
 #include "intermediateRepresentation.h"
 
 namespace StringParser {
-	void parseString(const TokenLine *tokenLine, uint32 offset, int intRegOffset, int floatRegOffset, Token terminator, std::list<IntermediateRepresentation> *irsOut);
+	void parseString(const TokenLine *tokenLine, uint32 offset, int intRegOffset, int floatRegOffset, int paramMemOffset, Token terminator, std::list<IntermediateRepresentation> *irsOut);
 }
 
 #endif

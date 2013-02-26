@@ -21,11 +21,11 @@ using namespace IREmitter;
 using namespace ParseHelper;
 
 //From parseModule.cpp
-extern Function *function;
 extern const ConstCharTable *constCharTable;
 extern const Function *functionCall(const TokenLine *functionCallTokens, int paramMemOffset, int intRegOffset, int floatRegOffset, list<IntermediateRepresentation> *irsOut);
+extern int parseExpression(const TokenLine *expression, IdentifierDataType dataType, Token terminator, int paramMemOffset, int intRegOffset, int floatRegOffset, bool isCompare, list<IntermediateRepresentation> *irsOut);
 
-void StringParser::parseString(const TokenLine *tokenLine, uint32 offset, int intRegOffset, int floatRegOffset, Token terminator, std::list<IntermediateRepresentation> *irsOut) {
+void StringParser::parseString(const TokenLine *tokenLine, uint32 offset, int intRegOffset, int floatRegOffset, int paramMemOffset, Token terminator, std::list<IntermediateRepresentation> *irsOut) {
 	//Clear the string at 'String Pointer Register'
 	opcode_immi_r(irsOut, _OUT_IMMI_R64, 40, REG_STRING_POINTER);
 	opcode_immi_immi8(irsOut, _OUT_IMMI_IMMI8, 64, 9);
@@ -48,7 +48,7 @@ void StringParser::parseString(const TokenLine *tokenLine, uint32 offset, int in
 							opcode_r(irsOut, _PUSH_R, REG_STRING_POINTER);
 
 							//Get function call IRs
-							const Function *calledFunction = functionCall(&functionCallTokens, function->identsSize, intRegOffset, floatRegOffset, irsOut);
+							const Function *calledFunction = functionCall(&functionCallTokens, paramMemOffset, intRegOffset, floatRegOffset, irsOut);
 							dataType = calledFunction->returnType;
 
 							//Pop the 'String Pointer Register' from the stack and put it in 'String Object' Port
@@ -210,6 +210,39 @@ void StringParser::parseString(const TokenLine *tokenLine, uint32 offset, int in
 					case KW_STRING:
 						++offset;
 						continue;
+				}
+			case TOKEN_OPERATOR:
+				if (tokenLine->tokens.at(offset++).operation == OPERATOR_OPEN_ROUND_BRACKET) {
+					//Get expression tokens
+					TokenLine expression;
+					getExpressionInsideBracket(tokenLine, offset, OPERATOR_OPEN_ROUND_BRACKET, OPERATOR_CLOSE_ROUND_BRACKET, &expression);
+					
+					//Get expression data type
+					bool isCompare;
+					IdentifierDataType expDataType = getExpressionDataType(&expression, 0, isCompare);
+					
+					//Type check
+					if (expDataType > DATA_TYPE_FLOAT) {
+						 throw LockableException(ERR_STR_TYPE_MISMATCH + tokenLine->toString());
+					}
+
+					//Put a terminator at the end of expression
+					Token terminator = Token(Token(TOKEN_OPERATOR, KW_NONE, OPERATOR_SEMI_COLON, ";"));
+					expression.tokens.push_back(terminator);
+
+					int reg = parseExpression(&expression, expDataType, terminator, paramMemOffset, 1, 1, isCompare, irsOut);
+
+					if (expDataType == DATA_TYPE_FLOAT && !isCompare) {
+						dataType = DATA_TYPE_FLOAT;
+						opcode_r_r(irsOut, _FMOV_FR_FR, 0, reg);
+					} else {
+						dataType = DATA_TYPE_INT;
+						opcode_r_r(irsOut, _MOV_R_R, 0, reg);
+					}
+
+					++offset;
+					isLiteral = false;
+					break;
 				}
 			default:
 				{

@@ -549,7 +549,7 @@ void assignment(const TokenLine *tokenLine, list<IntermediateRepresentation> *ir
 						}
 					}
 					opcode_r_mr(irsOut, _MOVP_R_MR, REG_STRING_POINTER, REG_STRING_POINTER);
-					parseString(&srcExpression, 0, 2, 1, Token(TOKEN_OPERATOR, KW_NONE, OPERATOR_SEMI_COLON, ";"),
+					parseString(&srcExpression, 0, 2, 1, function->identsSize, Token(TOKEN_OPERATOR, KW_NONE, OPERATOR_SEMI_COLON, ";"),
 						irsOut);
 				} else {
 					string errMsg = ERR_STR_TYPE_MISMATCH;
@@ -918,7 +918,7 @@ void lineReturn(const TokenLine *tokenLine, list<IntermediateRepresentation> *ir
 						opcode_r_mr(irsOut, _MOVP_R_MR, REG_STRING_POINTER, REG_INDEX_POINTER);
 
 						//Parse the string expression
-						parseString(&expression, 0, 1, 1, terminator, irsOut);
+						parseString(&expression, 0, 1, 1, function->identsSize, terminator, irsOut);
 
 						//Copy the string from 'String Pointer Register' to 'Return String Register'
 						opcode_immi_r(irsOut, _OUT_IMMI_R64, 40, REG_RETURN_STRING);
@@ -1113,20 +1113,22 @@ const Function *functionCall(const TokenLine *functionCallTokens, int paramMemOf
 						break;
 					}
 				case DATA_TYPE_STRING:
-					//Get the address of parameter
-					opcode_r_r(irsOut, _MOV_R_R, REG_INDEX_POINTER, REG_BASE_POINTER);
-					opcode_r_immi(irsOut, _ADD_R_IMMI, REG_INDEX_POINTER, paramMemOffset + calledFunction->parameters.at(i).index);
-
 					//Allocate a new string object
 					opcode_immi_immi8(irsOut, _OUT_IMMI_IMMI8, 64, 0);
 					opcode_r_immi(irsOut, _IN_R64_IMMI, 0, 40);
 
-					//Put the newly created string object in parameter and 'String Pointer Reister'
-					opcode_mr_r(irsOut, _MOVP_MR_R, REG_INDEX_POINTER, 0);
+					//Put the newly created string object 'String Pointer Register'
 					opcode_r_r(irsOut, _MOV_R_R, REG_STRING_POINTER, 0);
 
 					//Parse String expression
-					parseString(&params.at(i), 0, intRegOffset, floatRegOffset, Token(TOKEN_OPERATOR, KW_NONE, OPERATOR_SEMI_COLON, ";"), irsOut);
+					parseString(&params.at(i), 0, intRegOffset, floatRegOffset, paramMemOffset + calledFunction->identsSize, Token(TOKEN_OPERATOR, KW_NONE, OPERATOR_SEMI_COLON, ";"), irsOut);
+					
+					//Get the address of parameter
+					opcode_r_r(irsOut, _MOV_R_R, REG_INDEX_POINTER, REG_BASE_POINTER);
+					opcode_r_immi(irsOut, _ADD_R_IMMI, REG_INDEX_POINTER, paramMemOffset + calledFunction->parameters.at(i).index);
+
+					//Put the string pointer string in parameter
+					opcode_mr_r(irsOut, _MOVP_MR_R, REG_INDEX_POINTER, REG_STRING_POINTER);
 					break;
 				default:
 					{

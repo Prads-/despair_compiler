@@ -24,7 +24,6 @@ typedef float float32;
 
 #define _DEBUG_MODE
 
-#define REG_STRING_REGISTER				250	//String register, only one that exists
 #define REG_RETURN_STRING				251	//Holds strings returned by a function
 #define REG_STRING_POINTER				252	//Points to string object
 #define REG_INDEX_POINTER				253	//Points to variables
