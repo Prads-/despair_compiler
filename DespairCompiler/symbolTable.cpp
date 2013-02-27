@@ -51,6 +51,7 @@ void createFunctionTable(const TokenModule *tokenModule, const GroupTable *group
 			getParameters(&it->second.tokenLines[0], groupTable, &function, counter);
 		} else {
 			function.returnType = DATA_TYPE_VOID;
+			function.isCalled = true;
 		}
 		functionTable->insert(FunctionTable::value_type(function.name, function));
 	}

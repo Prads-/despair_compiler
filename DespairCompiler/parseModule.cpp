@@ -65,7 +65,8 @@ uint32 ParseModule::parseModule(const TokenModule *tokenModule, const GroupTable
 	}
 
 	//Parse functions (sub-modules)
-	for (TokenModule::const_iterator tModIt = tMainModule; tModIt != tokenModule->end(); ++tModIt) {
+	TokenModule::const_iterator tModIt = tMainModule;
+	while (tModIt != tokenModule->end()) {
 		pair<FunctionTable::iterator, FunctionTable::iterator> rangeIt;
 		rangeIt = funcTable->equal_range(tModIt->second.name);
 		for (FunctionTable::iterator it = rangeIt.first; it != rangeIt.second; ++it) {
@@ -84,6 +85,8 @@ uint32 ParseModule::parseModule(const TokenModule *tokenModule, const GroupTable
 
 			//Start searching from beginning of the token module again
 			tModIt = tokenModule->begin();
+		} else {
+			++tModIt;
 		}
 	}
 
@@ -369,7 +372,7 @@ void assignment(const TokenLine *tokenLine, list<IntermediateRepresentation> *ir
 
 		//Get the IRs
 		int srcReg;
-		if (srcDataType <= DATA_TYPE_FLOAT) {
+		if (srcDataType <= DATA_TYPE_FLOAT && destIdent->dataType <= DATA_TYPE_FLOAT) {
 			srcReg = parseExpression(&srcExpression, srcDataType, Token(TOKEN_OPERATOR, KW_NONE, OPERATOR_SEMI_COLON, ";"),
 				function->identsSize, 2, 1, srcIsCompare, irsOut);
 			if (srcIsCompare) srcDataType = DATA_TYPE_INT;

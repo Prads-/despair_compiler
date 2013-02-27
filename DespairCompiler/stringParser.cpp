@@ -217,6 +217,10 @@ void StringParser::parseString(const TokenLine *tokenLine, uint32 offset, int in
 					TokenLine expression;
 					getExpressionInsideBracket(tokenLine, offset, OPERATOR_OPEN_ROUND_BRACKET, OPERATOR_CLOSE_ROUND_BRACKET, &expression);
 					
+					//Put a terminator at the end of expression
+					Token terminator = Token(Token(TOKEN_OPERATOR, KW_NONE, OPERATOR_SEMI_COLON, ";"));
+					expression.tokens.push_back(terminator);
+
 					//Get expression data type
 					bool isCompare;
 					IdentifierDataType expDataType = getExpressionDataType(&expression, 0, isCompare);
@@ -226,11 +230,15 @@ void StringParser::parseString(const TokenLine *tokenLine, uint32 offset, int in
 						 throw LockableException(ERR_STR_TYPE_MISMATCH + tokenLine->toString());
 					}
 
-					//Put a terminator at the end of expression
-					Token terminator = Token(Token(TOKEN_OPERATOR, KW_NONE, OPERATOR_SEMI_COLON, ";"));
-					expression.tokens.push_back(terminator);
+					//Push the 'String Pointer Register' into the stack
+					opcode_r(irsOut, _PUSH_R, REG_STRING_POINTER);
 
+					//Parse the expression
 					int reg = parseExpression(&expression, expDataType, terminator, paramMemOffset, 1, 1, isCompare, irsOut);
+
+					//Pop the 'String Pointer Register' from the stack and put it in 'String Object' Port
+					opcode_r(irsOut, _POP_R, REG_STRING_POINTER);
+					opcode_immi_r(irsOut, _OUT_IMMI_R64, 40, REG_STRING_POINTER);
 
 					if (expDataType == DATA_TYPE_FLOAT && !isCompare) {
 						dataType = DATA_TYPE_FLOAT;
