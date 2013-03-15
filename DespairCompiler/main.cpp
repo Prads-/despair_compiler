@@ -38,7 +38,7 @@ bool loadDefaultFont(int &fontSize, char **font);
 void logMsg(ofstream *logFile, string msg);
 
 int main(int argc, char **argv) {
-	cout << "*** despairCompiler version 0.03 ***" << endl;
+    cout << "*** despairCompiler version 0.04 ***" << endl;
 	cout << "Written by Prads" << endl;
 	cout << "Copyright (C) 2013 Pradipna Nepal" << endl;
 	cout << "Please read COPYING.txt included along with this source code for more detail." << endl;

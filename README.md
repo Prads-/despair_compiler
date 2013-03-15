@@ -3,6 +3,9 @@ despair_compiler
 
 Changes log:
 
+Version 0.04:
+-Implemented new instruction set.
+
 Version 0.03:
 -Fixed bug in string parser.
 -Fixed bug where the variable assignment was being ignored when declared outside a function.
