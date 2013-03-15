@@ -458,14 +458,17 @@ void assignment(const TokenLine *tokenLine, list<IntermediateRepresentation> *ir
 						break;
 					case DATA_TYPE_FLOAT:
 						if (isDestIdentIndexNotValid) {
-							opcode_mr_fr(irsOut, _FCON_MR_FR, REG_DEST_POINTER, srcReg);
+							opcode_r_fr(irsOut, _FCON_R_FR, 0, srcReg);
+							opcode_mr_r(irsOut, _MOV_MR_R, REG_DEST_POINTER, 0);
 						} else {
 							if (isDestIdentGlobal) {
 								if (destIdent->isPointer) {
 									opcode_r_m(irsOut, _MOVP_R_M, REG_DEST_POINTER, destIdentIndex);
-									opcode_mr_fr(irsOut, _FCON_MR_FR, REG_DEST_POINTER, srcReg);
+									opcode_r_fr(irsOut, _FCON_R_FR, 0, srcReg);
+									opcode_mr_r(irsOut, _MOV_MR_R, REG_DEST_POINTER, 0);
 								} else {
-									opcode_m_fr(irsOut, _FCON_M_FR, destIdentIndex, srcReg);
+									opcode_r_fr(irsOut, _FCON_R_FR, 0, srcReg);
+									opcode_m_r(irsOut, _MOV_M_R, destIdentIndex, 0);
 								}
 							} else {
 								opcode_r_r(irsOut, _MOV_R_R, REG_DEST_POINTER, REG_BASE_POINTER);
@@ -473,7 +476,8 @@ void assignment(const TokenLine *tokenLine, list<IntermediateRepresentation> *ir
 								if (destIdent->isPointer) {
 									opcode_r_mr(irsOut, _MOVP_R_MR, REG_DEST_POINTER, REG_DEST_POINTER);
 								}
-								opcode_mr_fr(irsOut, _FCON_MR_FR, REG_DEST_POINTER, srcReg);
+								opcode_r_fr(irsOut, _FCON_R_FR, 0, srcReg);
+								opcode_mr_r(irsOut, _MOV_MR_R, REG_DEST_POINTER, 0);
 							}
 						}
 						break;
@@ -493,14 +497,17 @@ void assignment(const TokenLine *tokenLine, list<IntermediateRepresentation> *ir
 					case DATA_TYPE_BYTE:
 					case DATA_TYPE_INT:
 						if (isDestIdentIndexNotValid) {
-							opcode_mfr_r(irsOut, _FCON_MFR_R, REG_DEST_POINTER, srcReg);
+							opcode_fr_r(irsOut, _FCON_FR_R, 0, srcReg);
+							opcode_mfr_fr(irsOut, _FMOV_MFR_FR, REG_DEST_POINTER, 0);
 						} else {
 							if (isDestIdentGlobal) {
 								if (destIdent->isPointer) {
 									opcode_r_m(irsOut, _MOVP_R_M, REG_DEST_POINTER, destIdentIndex);
-									opcode_mfr_r(irsOut, _FCON_MFR_R, REG_DEST_POINTER, srcReg);
+									opcode_fr_r(irsOut, _FCON_FR_R, 0, srcReg);
+									opcode_mfr_fr(irsOut, _FMOV_MFR_FR, REG_DEST_POINTER, 0);
 								} else {
-									opcode_fm_r(irsOut, _FCON_FM_R, destIdentIndex, srcReg);
+									opcode_fr_r(irsOut, _FCON_FR_R, 0, srcReg);
+									opcode_mfr_fr(irsOut, _FMOV_FM_FR, destIdentIndex, 0);
 								}
 							} else {
 								opcode_r_r(irsOut, _MOV_R_R, REG_DEST_POINTER, REG_BASE_POINTER);
@@ -508,7 +515,8 @@ void assignment(const TokenLine *tokenLine, list<IntermediateRepresentation> *ir
 								if (destIdent->isPointer) {
 									opcode_r_mr(irsOut, _MOVP_R_MR, REG_DEST_POINTER, REG_DEST_POINTER);
 								}
-								opcode_mfr_r(irsOut, _FCON_MFR_R, REG_DEST_POINTER, srcReg);
+								opcode_fr_r(irsOut, _FCON_FR_R, 0, srcReg);
+								opcode_mfr_fr(irsOut, _FMOV_MFR_FR, REG_DEST_POINTER, 0);
 							}
 						}
 						break;

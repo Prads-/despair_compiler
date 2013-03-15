@@ -5,7 +5,7 @@
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LocalDebuggerCommandArguments>"E:/Pradipna/project/IDE Test/Test1/Test1.dpro" build.dbin</LocalDebuggerCommandArguments>
+    <LocalDebuggerCommandArguments>"E:/Pradipna/project/Break Out/Break Out.dpro" build.dbin</LocalDebuggerCommandArguments>
     <DebuggerFlavor>WindowsLocalDebugger</DebuggerFlavor>
   </PropertyGroup>
 </Project>

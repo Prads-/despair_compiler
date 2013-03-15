@@ -587,3 +587,45 @@ void IREmitter::opcode_immi_function(std::list<IntermediateRepresentation> *irsO
 
 	irsOut->push_back(ir);
 }
+
+void IREmitter::opcode_r_mr_immi(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 reg, uint32 mReg, uint32 immi) {
+	IntermediateRepresentation ir;
+	Operand operand;
+
+	ir.address = 0;
+	ir.label = 0;
+	ir.opcode = opcode;
+
+	operand.type = OPERAND_REGISTER;
+	operand.value = reg;
+	ir.operands.push_back(operand);
+	operand.type = OPERAND_MEMORY_REGISTER;
+	operand.value = mReg;
+	ir.operands.push_back(operand);
+	operand.type = OPERAND_IMMI;
+	operand.value = immi;
+	ir.operands.push_back(operand);
+
+	irsOut->push_back(ir);
+}
+
+void IREmitter::opcode_fr_mfr_immi(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 fReg, uint32 mfReg, uint32 immi) {
+	IntermediateRepresentation ir;
+	Operand operand;
+
+	ir.address = 0;
+	ir.label = 0;
+	ir.opcode = opcode;
+
+	operand.type = OPERAND_FLOAT_MEMORY_REGISTER;
+	operand.value = mfReg;
+	ir.operands.push_back(operand);
+	operand.type = OPERAND_FLOAT_REGISTER;
+	operand.value = fReg;
+	ir.operands.push_back(operand);
+	operand.type = OPERAND_IMMI;
+	operand.value = immi;
+	ir.operands.push_back(operand);
+
+	irsOut->push_back(ir);
+}

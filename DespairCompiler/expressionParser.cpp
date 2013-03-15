@@ -123,9 +123,11 @@ void loadValToReg() {
 									break;
 								case DATA_TYPE_INT:
 									if (tokens->at(tokenCounter).isPointer) {
-										opcode_fr_mr(irs, _FCON_FR_MR, floatRegCounter++, REG_INDEX_POINTER);
+										opcode_r_mr(irs, _MOV_R_MR, intRegCounter, REG_INDEX_POINTER);
+										opcode_fr_r(irs, _FCON_FR_R, floatRegCounter++, intRegCounter);
 									} else {
-										opcode_fr_m(irs, _FCON_FR_M, floatRegCounter++, tokens->at(tokenCounter).value);
+										opcode_r_m(irs, _MOV_R_MR, intRegCounter, tokens->at(tokenCounter).value);
+										opcode_fr_r(irs, _FCON_FR_R, floatRegCounter++, intRegCounter);
 									}
 									break;
 								case DATA_TYPE_FLOAT:
@@ -153,42 +155,69 @@ void loadValToReg() {
 									break;
 								case DATA_TYPE_FLOAT:
 									if (tokens->at(tokenCounter).isPointer) {
-										opcode_r_mfr(irs, _FCON_R_MFR, intRegCounter++, REG_INDEX_POINTER);
+										opcode_fr_mfr(irs, _FMOV_FR_MFR, floatRegCounter, REG_INDEX_POINTER);
+										opcode_r_fr(irs, _FCON_R_FR, intRegCounter++, floatRegCounter);
 									} else {
-										opcode_r_fm(irs, _FCON_R_FM, intRegCounter++, tokens->at(tokenCounter).value);
+										opcode_fr_fm(irs, _FMOV_FR_FM, floatRegCounter, tokens->at(tokenCounter).value);
+										opcode_r_fr(irs, _FCON_R_FR, intRegCounter++, floatRegCounter);
 									}
 							}
 						}
 					} else {
-						//Get the memory address of the variable
-						opcode_r_r(irs, _MOV_R_R, REG_INDEX_POINTER, REG_BASE_POINTER);
-						opcode_r_immi(irs, _ADD_R_IMMI, REG_INDEX_POINTER, tokens->at(tokenCounter).value);
+						bool isPointer = false;
 						if (tokens->at(tokenCounter).isPointer) {
-							opcode_r_mr(irs, _MOVP_R_MR, REG_INDEX_POINTER, REG_INDEX_POINTER);
+							opcode_r_mr_immi(irs, _MOVP_R_MR_IMMI, REG_INDEX_POINTER, REG_BASE_POINTER, tokens->at(tokenCounter).value);
+							isPointer = true;
 						}
 
 						if (generateFloatInstructions) {
 							switch (tokens->at(tokenCounter).dataType) {
 								case DATA_TYPE_BYTE:
-									opcode_r_mr(irs, _BMOV_R_BR, intRegCounter, REG_INDEX_POINTER);
+									if (isPointer) {
+										opcode_r_mr(irs, _BMOV_R_BR, intRegCounter, REG_INDEX_POINTER);
+									} else {
+										opcode_r_mr_immi(irs, _BMOV_R_BR_IMMI, intRegCounter, REG_BASE_POINTER, tokens->at(tokenCounter).value);
+									}
 									opcode_fr_r(irs, _FCON_FR_R, floatRegCounter++, intRegCounter);
 									break;
 								case DATA_TYPE_INT:
-									opcode_fr_mr(irs, _FCON_FR_MR, floatRegCounter++, REG_INDEX_POINTER);
+									if (isPointer) {
+										opcode_r_mr(irs, _MOV_R_MR, intRegCounter, REG_INDEX_POINTER);
+									} else {
+										opcode_r_mr_immi(irs, _MOV_R_MR_IMMI, intRegCounter, REG_BASE_POINTER, tokens->at(tokenCounter).value);
+									}
+									opcode_fr_r(irs, _FCON_FR_R, floatRegCounter++, intRegCounter);
 									break;
 								case DATA_TYPE_FLOAT:
-									opcode_fr_mfr(irs, _FMOV_FR_MFR, floatRegCounter++, REG_INDEX_POINTER);
+									if (isPointer) {
+										opcode_fr_mfr(irs, _FMOV_FR_MFR, floatRegCounter++, REG_INDEX_POINTER);
+									} else {
+										opcode_fr_mfr_immi(irs, _FMOV_FR_MFR_IMMI, floatRegCounter++, REG_BASE_POINTER, tokens->at(tokenCounter).value);
+									}
 							}
 						} else {
 							switch (tokens->at(tokenCounter).dataType) {
 								case DATA_TYPE_BYTE:
-									opcode_r_mr(irs, _BMOV_R_BR, intRegCounter++, REG_INDEX_POINTER);
+									if (isPointer) {
+										opcode_r_mr(irs, _BMOV_R_BR, intRegCounter++, REG_INDEX_POINTER);
+									} else {
+										opcode_r_mr_immi(irs, _BMOV_R_BR_IMMI, intRegCounter++, REG_BASE_POINTER, tokens->at(tokenCounter).value);
+									}
 									break;
 								case DATA_TYPE_INT:
-									opcode_r_mr(irs, _MOV_R_MR, intRegCounter++, REG_INDEX_POINTER);
+									if (isPointer) {
+										opcode_r_mr(irs, _MOV_R_MR, intRegCounter++, REG_INDEX_POINTER);
+									} else {
+										opcode_r_mr_immi(irs, _MOV_R_MR_IMMI, intRegCounter++, REG_BASE_POINTER, tokens->at(tokenCounter).value);
+									}
 									break;
 								case DATA_TYPE_FLOAT:
-									opcode_r_mfr(irs, _FCON_R_MFR, intRegCounter++, REG_INDEX_POINTER);
+									if (isPointer) {
+										opcode_fr_mfr(irs, _FMOV_FR_MFR, floatRegCounter, REG_INDEX_POINTER);
+									} else {
+										opcode_fr_mfr_immi(irs, _FMOV_FR_MFR_IMMI, floatRegCounter, REG_BASE_POINTER, tokens->at(tokenCounter).value);
+									}
+									opcode_r_fr(irs, _FCON_R_FR, intRegCounter++, floatRegCounter);
 							}
 						}
 					}
@@ -208,7 +237,8 @@ void loadValToReg() {
 								opcode_r_mr(irs, _BMOV_R_BR, intRegCounter, tokens->at(tokenCounter).value);
 								opcode_fr_r(irs, _FCON_FR_R, floatRegCounter++, intRegCounter);
 							} else {
-								opcode_fr_mr(irs, _FCON_FR_MR, floatRegCounter++, tokens->at(tokenCounter).value);
+								opcode_r_mr(irs, _MOV_R_MR, intRegCounter, tokens->at(tokenCounter).value);
+								opcode_fr_r(irs, _FCON_FR_R, floatRegCounter++, intRegCounter);
 							}
 						} else {
 							opcode_fr_r(irs, _FCON_FR_R, floatRegCounter++, tokens->at(tokenCounter).value);
@@ -217,7 +247,8 @@ void loadValToReg() {
 				} else {
 					if (tokens->at(tokenCounter).dataType == DATA_TYPE_FLOAT) {
 						if (tokens->at(tokenCounter).isPointer) {
-							opcode_r_mr(irs, _FCON_R_MFR, intRegCounter++, tokens->at(tokenCounter).value);
+							opcode_fr_mfr(irs, _FMOV_FR_MFR, floatRegCounter, tokens->at(tokenCounter).value);
+							opcode_r_fr(irs, _FCON_R_FR, intRegCounter++, floatRegCounter);
 						} else {
 							opcode_r_fr(irs, _FCON_R_FR, intRegCounter++, tokens->at(tokenCounter).value);
 						}

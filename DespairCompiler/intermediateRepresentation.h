@@ -71,6 +71,8 @@ namespace IREmitter {
 	void opcode_fr_fr(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 fReg1, uint32 fReg2);
 	void opcode_immi_immi64(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 immi, uint64 immi64);
 	void opcode_immi_function(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 immi, uint32 functionID, std::string functionName);
+	void opcode_r_mr_immi(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 reg, uint32 mReg, uint32 immi);
+	void opcode_fr_mfr_immi(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 fReg, uint32 mfReg, uint32 immi);
 }
 
 #endif
