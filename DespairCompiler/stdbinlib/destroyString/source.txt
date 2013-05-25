@@ -1,0 +1,9 @@
+;void destroyString(pointer string)
+
+movp reg[0], (reg[255])
+movp reg[0], (reg[0])
+
+out 40, lreg[0]
+out 64, byte 1
+
+ret

@@ -4,13 +4,8 @@
 out 39, byte 0
 in lreg[0], 15
 
-mov reg[1], reg[255]
-add reg[1], 8		
-movp reg[1], (reg[1])	;string - path
-
-mov reg[2], reg[255]
-add reg[2], 16
-mov reg[2], (reg[2])	;int - 0:text file, 1:binary file
+movp reg[1], (reg[255] + 8)	;string - path
+mov reg[2], (reg[255] + 16)	;int - 0:text file, 1:binary file
 
 out 15, lreg[0]
 out 23, lreg[1]

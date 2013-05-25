@@ -15,6 +15,7 @@
 
 namespace StringExtension {
 	void strAppendInteger(int integer, std::string *strOut);
+	std::string intToStr(int integer);
 	bool getLineFromFile(std::ifstream *file, std::string *lineOut);
 }
 

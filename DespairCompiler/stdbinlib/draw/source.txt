@@ -1,20 +1,8 @@
-movp reg[0], (reg[255])	;image
-
-mov reg[1], reg[255]
-add reg[1], 8
-mov reg[1], (reg[1])	;flip x : bool
-
-mov reg[2], reg[255]
-add reg[2], 12
-mov reg[2], (reg[2])	;flip y : bool
-
-mov reg[3], reg[255]
-add reg[3], 16
-mov reg[3], (reg[3])	;alpha blending : bool
-
-mov reg[4], reg[255]
-add reg[4], 20
-mov reg[4], (reg[4])	;rotation : int
+movp reg[0], (reg[255])		;image
+mov reg[1], (reg[255] + 8)	;flip x : bool
+mov reg[2], (reg[255] + 12)	;flip y : bool
+mov reg[3], (reg[255] + 16)	;alpha blending : bool
+mov reg[4], (reg[255] + 20)	;rotation : int
 
 ;Get the last bits of all booleans
 and reg[1], 1
@@ -46,15 +34,11 @@ rotation_out:
 out 0, breg[5]
 
 ;x coordinate
-mov reg[1], reg[255]
-add reg[1], 24
-mov reg[1], (reg[1])
+mov reg[1], (reg[255] + 24)
 
 ;y coordinate
-mov reg[2], reg[255]
-add reg[2], 28
-mov reg[2], (reg[2])
+mov reg[2], (reg[255] + 28)
 
-drw reg[1], reg[2], reg[0]
+drw reg[1], reg[2], (reg[0])
 
 ret

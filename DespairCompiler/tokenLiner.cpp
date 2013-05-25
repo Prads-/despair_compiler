@@ -61,7 +61,19 @@ void TokenLiner::getTokenLines(const std::vector<Token> *tokens, std::vector<Tok
 						break;
 					case KW_CASE:
 						lookForTerminator(tokens, counter, OPERATOR_COLON, &tokenLine);
-						tokenLine.type = TOKEN_LINE_COMPARE;
+						tokenLine.type = TOKEN_LINE_CASE;
+						break;
+					case KW_FCASE:
+						lookForTerminator(tokens, counter, OPERATOR_COLON, &tokenLine);
+						tokenLine.type = TOKEN_LINE_FCASE;
+						break;
+					case KW_DEFAULT:
+						lookForTerminator(tokens, counter, OPERATOR_COLON, &tokenLine);
+						tokenLine.type = TOKEN_LINE_DEFAULT;
+						break;
+					case KW_FDEFAULT:
+						lookForTerminator(tokens, counter, OPERATOR_COLON, &tokenLine);
+						tokenLine.type = TOKEN_LINE_FDEFAULT;
 						break;
 					case KW_FOR:
 					case KW_WHILE:
@@ -69,14 +81,21 @@ void TokenLiner::getTokenLines(const std::vector<Token> *tokens, std::vector<Tok
 						tokenLine.type = TOKEN_LINE_LOOP;
 						break;
 					case KW_IF:
-					case KW_SWITCH:
 					case KW_ELSE:
 						lookForTerminator(tokens, counter, OPERATOR_OPEN_CURLY_BRACKET, &tokenLine);
 						tokenLine.type = TOKEN_LINE_COMPARE;
 						break;
+					case KW_SWITCH:
+						lookForTerminator(tokens, counter, OPERATOR_OPEN_CURLY_BRACKET, &tokenLine);
+						tokenLine.type = TOKEN_LINE_SWITCH;
+						break;
 					case KW_RETURN:
 						lookForTerminator(tokens, counter, OPERATOR_SEMI_COLON, &tokenLine);
 						tokenLine.type = TOKEN_LINE_RETURN;
+						break;
+					case KW_BREAK:
+						lookForTerminator(tokens, counter, OPERATOR_SEMI_COLON, &tokenLine);
+						tokenLine.type = TOKEN_LINE_BREAK;
 						break;
 					case KW_DELETE:
 						lookForTerminator(tokens, counter, OPERATOR_SEMI_COLON, &tokenLine);
@@ -85,6 +104,10 @@ void TokenLiner::getTokenLines(const std::vector<Token> *tokens, std::vector<Tok
 					case KW_START_THREAD:
 						lookForTerminator(tokens, counter, OPERATOR_SEMI_COLON, &tokenLine);
 						tokenLine.type = TOKEN_LINE_THREAD_START;
+						break;
+					case KW_CONTINUE:
+						lookForTerminator(tokens, counter, OPERATOR_SEMI_COLON, &tokenLine);
+						tokenLine.type = TOKEN_LINE_CONTINUE;
 				}
 			} else if (tokens->at(counter).type == TOKEN_IDENTIFIER) {
 				switch (tokens->at(counter + 1).operation) {

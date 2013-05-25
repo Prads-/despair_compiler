@@ -1,18 +1,9 @@
 ;void print(string, int, int)
 
-movp reg[0], (reg[255])		;string
-
-mov reg[1], reg[255]
-add reg[1], 8
-mov reg[1], (reg[1])		;x
-
-mov reg[2], reg[255]
-add reg[2], 12
-mov reg[2], (reg[2])		;y
-
-mov reg[3], reg[255]
-add reg[3], 16
-mov reg[3], (reg[3])		;color
+movp reg[0], (reg[255])			;string
+mov reg[1], (reg[255] + 8)		;x
+mov reg[2], (reg[255] + 12)		;y
+mov reg[3], (reg[255] + 16)		;color
 
 out 40, lreg[0]
 out 64, byte 10
@@ -34,7 +25,7 @@ sub reg[5], 32
 mul reg[5], 52
 mov reg[7], reg[254]
 add reg[7], reg[5]
-drw reg[1], reg[2], reg[7]
+drw reg[1], reg[2], (reg[7])
 add reg[4], 1
 add reg[1], 16
 

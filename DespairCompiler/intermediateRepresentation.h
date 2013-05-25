@@ -28,6 +28,15 @@ struct Operand {
 	uint64 value;
 	float32 fValue;
 	std::string str;		//Used to store function name in OPERAND_FUNCTION
+
+	Operand() { }
+
+	Operand(OperandType type, uint64 value, float32 fValue, std::string str) {
+		this->type = type;
+		this->value = value;
+		this->fValue = fValue;
+		this->str = str;
+	}
 };
 
 struct IntermediateRepresentation {
@@ -73,6 +82,8 @@ namespace IREmitter {
 	void opcode_immi_function(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 immi, uint32 functionID, std::string functionName);
 	void opcode_r_mr_immi(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 reg, uint32 mReg, uint32 immi);
 	void opcode_fr_mfr_immi(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 fReg, uint32 mfReg, uint32 immi);
+	void opcode_immi(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 immi);
+	void opcode_r_fr_fr(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 reg, uint32 fReg1, uint32 fReg2);
 }
 
 #endif

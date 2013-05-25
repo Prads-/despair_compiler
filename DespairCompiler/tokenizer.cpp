@@ -115,6 +115,16 @@ Keyword getKeywordType(const string *word) {
 		return KW_PUBLIC;
 	else if (*word == "weakPtr")
 		return KW_WEAK_PTR;
+	else if (*word == "break")
+		return KW_BREAK;
+	else if (*word == "default")
+		return KW_DEFAULT;
+	else if (*word == "fcase")
+		return KW_FCASE;
+	else if (*word == "fdefault")
+		return KW_FDEFAULT;
+	else if (*word == "continue")
+		return KW_CONTINUE;
 	else
 		return KW_NONE;
 }

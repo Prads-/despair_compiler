@@ -58,5 +58,16 @@
 #define ERR_STR_GROUP_NOT_EXIST			"E1045 - Group does not exist: "
 #define ERR_STR_GRP_INHERIT_NOT_EXIST	"E1046 - Group trying to inherit from group that doesn't exist: "
 #define ERR_STR_GRP_CIRCULAR_INHERIT	"E1047 - Circular inheritance is not allowed: "
+#define ERR_STR_SYNTAX_ERR_SWITCH		"E1048 - Syntax error in switch statement in line: "
+#define ERR_STR_INVALID_CONSTANT		"E1049 - Invalid operator in constant expression in line: "
+#define ERR_STR_ZERO_CASE_CONDITION		"E1050 - A case should have atleast one condition"
+#define ERR_STR_CASE_BLOCK_EMPTY		"E1051 - Case/Default block cannot be empty"
+#define ERR_STR_CASE_NO_FALLTHROUGH		"E1052 - Every case/default block must have break statement at the end. For fall-through, use fcase or fdefault keywords"
+#define ERR_STR_INVALID_BREAK			"E1053 - Invalid break keyword in line: "
+#define ERR_STR_MULTIPLE_DEFAULT		"E1053 - A switch case cannot have multiple default"
+#define ERR_STR_INVALID_SWITCH_EXP		"E1054 - Invalid data type in switch expression in line: "
+#define ERR_STR_INVALID_CASE_EXP		"E1055 - Invalid case data type. Case data type mismatch: "
+#define ERR_STR_INVALID_CONTINUE		"E1056 - Invalid continue keyword in line: "
+#define ERR_STR_CASE_NOT_UNIQUE			"E1057 - Every constant case conditions in switch statement must be unique"
 
 #endif

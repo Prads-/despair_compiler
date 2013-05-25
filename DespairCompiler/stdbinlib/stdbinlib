@@ -20,3 +20,7 @@ memcpy
 floatPrecision
 getFrameBuffer
 setFrameBuffer
+createString
+destroyString
+getStringSize
+getSubstring

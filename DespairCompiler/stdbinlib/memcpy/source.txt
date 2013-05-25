@@ -1,14 +1,8 @@
 ;void memcpy(pointer byte, pointer byte, int)
 
 movp reg[0], (reg[255])	;destination
-
-mov reg[1], reg[255]
-add reg[1], 8
-movp reg[1], (reg[1])	;source
-
-mov reg[2], reg[255]
-add reg[2], 16
-mov reg[2], (reg[2])	;size
+movp reg[1], (reg[255] + 8)	;source
+mov reg[2], (reg[255] + 16)	;size
 
 ;DMA transfer
 out 66, lreg[1]

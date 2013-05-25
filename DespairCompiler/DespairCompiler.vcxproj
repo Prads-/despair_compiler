@@ -63,8 +63,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BinaryTree.h" />
     <ClInclude Include="codeContainer.h" />
     <ClInclude Include="codeGenerator.h" />
+    <ClInclude Include="constantParser.h" />
     <ClInclude Include="constCharTable.h" />
     <ClInclude Include="constTable.h" />
     <ClInclude Include="customStack.h" />
@@ -93,6 +95,7 @@
     <ClInclude Include="stdBinLib.h" />
     <ClInclude Include="stringExtension.h" />
     <ClInclude Include="stringParser.h" />
+    <ClInclude Include="switch.h" />
     <ClInclude Include="symbolTable.h" />
     <ClInclude Include="Token.h" />
     <ClInclude Include="Tokenizer.h" />
@@ -103,6 +106,7 @@
   <ItemGroup>
     <ClCompile Include="codeContainer.cpp" />
     <ClCompile Include="codeGenerator.cpp" />
+    <ClCompile Include="constantParser.cpp" />
     <ClCompile Include="constTable.cpp" />
     <ClCompile Include="debug_disassembler.cpp" />
     <ClCompile Include="expressionParser.cpp" />
@@ -122,6 +126,7 @@
     <ClCompile Include="stdBinLib.cpp" />
     <ClCompile Include="stringExtension.cpp" />
     <ClCompile Include="stringParser.cpp" />
+    <ClCompile Include="switch.cpp" />
     <ClCompile Include="symbolTable.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Tokenizer.cpp" />

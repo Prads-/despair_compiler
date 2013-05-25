@@ -1,0 +1,10 @@
+;int getStringSize(pointer string)
+
+movp reg[0], (reg[255])
+movp reg[0], (reg[0])
+
+out 40, lreg[0]
+out 64, 2
+in reg[0], 48
+
+ret

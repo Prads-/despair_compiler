@@ -2,9 +2,7 @@
 
 movp reg[0], (reg[255])		;file
 
-mov reg[1], reg[255]
-add reg[1], 8
-movp reg[1], (reg[1])
+movp reg[1], (reg[255] + 8)
 movp reg[1], (reg[1])		;string
 
 out 15, lreg[0]

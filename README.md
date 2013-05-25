@@ -3,6 +3,9 @@ despair_compiler
 
 Changes log:
 
+Version 0.05:
+-Switch expression implemented
+
 Version 0.04:
 -Implemented new instruction set.
 

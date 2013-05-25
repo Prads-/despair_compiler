@@ -1,12 +1,8 @@
-mov reg[1], reg[255]
-add reg[1], 8 		
-movp reg[1], (reg[1])	;source image
+movp reg[1], (reg[255] + 8)	;source image
 
 mov reg[2], (reg[1]) 	;width of source image
 
-mov reg[3], reg[1]
-add reg[3], 4
-mov reg[3], (reg[3])	;height of source image
+mov reg[3], (reg[1] + 4)	;height of source image
 
 mul reg[2], reg[3]
 mul reg[2], 4		;size of image in bytes

@@ -11,7 +11,12 @@
 using namespace std;
 
 void StringExtension::strAppendInteger(int integer, string *strOut) {
-	string appendStr = "";
+	string appendStr = intToStr(integer);
+	strOut->append(appendStr);
+}
+
+std::string StringExtension::intToStr(int integer) {
+	string retStr = "";
 	int digit;
 	bool neg = false;
 	
@@ -21,17 +26,17 @@ void StringExtension::strAppendInteger(int integer, string *strOut) {
 	}
 	while (integer != 0) {
 		digit = integer % 10;
-		appendStr += (char)(digit + 48);
+		retStr += (char)(digit + 48);
 		integer /= 10;
 	}
-	for (int start = 0, end = appendStr.size() - 1; start < appendStr.size() / 2; ++start, --end) {
-		appendStr[start] ^= appendStr[end];
-		appendStr[end] ^= appendStr[start];
-		appendStr[start] ^= appendStr[end];
+	for (int start = 0, end = retStr.size() - 1; start < retStr.size() / 2; ++start, --end) {
+		retStr[start] ^= retStr[end];
+		retStr[end] ^= retStr[start];
+		retStr[start] ^= retStr[end];
 	}
-	if (neg) appendStr.insert(appendStr.begin(), '-');
+	if (neg) retStr.insert(retStr.begin(), '-');
 
-	strOut->append(appendStr);
+	return retStr;
 }
 
 bool StringExtension::getLineFromFile(ifstream *file, string *lineOut) {

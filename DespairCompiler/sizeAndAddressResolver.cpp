@@ -189,6 +189,8 @@ int getOpcodeSize(uint16 opcode) {
 			return 6;
 		case _JC_R_IMMI:
 			return 7;
+		case _JCR_R_IMMI:
+			return 7;
 		case _MOVP_MR_IMMI_R:
 			return 8;
 		case _MOVP_R_MR_IMMI:
@@ -415,5 +417,31 @@ int getOpcodeSize(uint16 opcode) {
 			return 3;
 		case _FPOP_FR:
 			return 3;
+		case _CMPE_R_IMMI:
+			return 7;
+		case _CMPNE_R_IMMI:
+			return 7;
+		case _CMPG_R_IMMI:
+			return 7;
+		case _CMPGE_R_IMMI:
+			return 7;
+		case _CMPL_R_IMMI:
+			return 7;
+		case _CMPLE_R_IMMI:
+			return 7;
+		case _TIME:
+			return 2;
+		case _SLEEP:
+			return 2;
+		case _RAND:
+			return 2;
+		case _JMP_R:
+			return 3;
+		case _JMPR_R:
+			return 3;
+		case _JC_R_R:
+			return 4;
+		case _JCR_R_R:
+			return 4;
 	}
 }

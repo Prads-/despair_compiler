@@ -1,0 +1,10 @@
+;void createString(pointer string)
+
+movp reg[0], (reg[255])
+
+out 64, 0
+in lreg[1], 40
+
+movp (reg[0]), reg[1]
+
+ret

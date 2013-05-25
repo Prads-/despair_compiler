@@ -362,6 +362,8 @@ const Ident *ParseHelper::getGroupMember(const TokenLine *tokenLine, uint32 &off
 	uint32 grpMemIndex = 0;
 	if (optIndexOut) grpMemIndex = *optIndexOut;
 	IdentTable::const_iterator ident;
+	//Check if the last ident is accessing its element via index
+	bool isIndexed;
 	while (true) {
 		//Get the group member
 		++offset;
@@ -372,8 +374,6 @@ const Ident *ParseHelper::getGroupMember(const TokenLine *tokenLine, uint32 &off
 		}
 		grpMemIndex += ident->second.index;
 
-		//Check if the ident is accessing its element via index
-		bool isIndexed = false;
 		if ((ident->second.isPointer || ident->second.isArray) && tokenLine->tokens.at(offset + 1).operation == OPERATOR_OPEN_SQUARE_BRACKET) {
 			isIndexed = true;
 			offset += 2;
@@ -401,17 +401,26 @@ const Ident *ParseHelper::getGroupMember(const TokenLine *tokenLine, uint32 &off
 
 			if (optIRSout) {
 				opcode_r_immi(optIRSout, _ADD_R_IMMI, grpMemAddrReg, grpMemIndex);
-				if (ident->second.isPointer) opcode_r_mr(optIRSout, _MOVP_R_MR, grpMemAddrReg, grpMemAddrReg);
+
+				int dataTypeSize;
+				if (ident->second.isPointer) {
+					opcode_r_mr(optIRSout, _MOVP_R_MR, grpMemAddrReg, grpMemAddrReg);
+					dataTypeSize = getDataTypeSize(ident->second.dataType, ident->second.dataTypeStr);
+				} else {
+					dataTypeSize = ident->second.size;
+				}
 
 				//Parse the expresssion
 				int arrayIndexReg = parseExpression(&indexExp, indexExpDataType, Token(TOKEN_OPERATOR, KW_NONE,
 					OPERATOR_SEMI_COLON, ";"), function->identsSize, intRegOffset,  0, false, optIRSout);
 
-				opcode_r_immi(optIRSout, _MUL_R_IMMI, arrayIndexReg, ident->second.size);
+				opcode_r_immi(optIRSout, _MUL_R_IMMI, arrayIndexReg, dataTypeSize);
 				opcode_r_r(optIRSout, _ADD_R_R, grpMemAddrReg, arrayIndexReg);
 				if (optIsIndexNotValid) *optIsIndexNotValid = true;
 				grpMemIndex = 0;
 			}
+		} else {
+			isIndexed = false;
 		}
 
 		//If the member is of type group and it's member is being accessed
@@ -430,8 +439,12 @@ const Ident *ParseHelper::getGroupMember(const TokenLine *tokenLine, uint32 &off
 	}
 
 	if (optIRSout) {
-		if (grpMemIndex > 0) opcode_r_immi(optIRSout, _ADD_R_IMMI, grpMemAddrReg, grpMemIndex);
-		if (ident->second.isPointer) opcode_r_mr(optIRSout, _MOVP_R_MR, grpMemAddrReg, grpMemAddrReg);
+		if (grpMemIndex > 0) { 
+			opcode_r_immi(optIRSout, _ADD_R_IMMI, grpMemAddrReg, grpMemIndex);
+		}
+		if (ident->second.isPointer && !isIndexed) {
+			opcode_r_mr(optIRSout, _MOVP_R_MR, grpMemAddrReg, grpMemAddrReg);
+		}
 	}
 	if (optIndexOut) *optIndexOut = grpMemIndex;
 

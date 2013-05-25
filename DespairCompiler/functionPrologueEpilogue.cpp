@@ -14,7 +14,8 @@ using namespace IREmitter;
 
 void createStringObject(uint32 index, list<IntermediateRepresentation> *prologueOut, list<uint64> *stringObjectIndexOut, bool isGlobal);
 void deleteStringObject(list<IntermediateRepresentation> *epilogueOut, const list<uint64> *stringObjectIndex, bool isGlobal);
-void checkGroupForString(string groupName, const GroupTable *grpTable, uint32 index, list<IntermediateRepresentation> *prologueOut, list<uint64> *stringObjectIndexOut, bool isGlobal);
+void checkGroupForString(string groupName, const GroupTable *grpTable, uint32 grpIndex, list<IntermediateRepresentation> *prologueOut, list<uint64> *stringObjectIndexOut, bool isGlobal);
+void checkIfIdentIsString(IdentTable::const_iterator identIt, const GroupTable *grpTable, uint32 grpIndex, list<IntermediateRepresentation> *prologueOut, list<uint64> *stringObjectIndexOut, bool isGlobal);
 
 void FunctionPrologueEpilogue::addPrologueEpilogue(FunctionTable *funcTable, const GroupTable *grpTable) {
 	for (FunctionTable::iterator funcIt = funcTable->begin(); funcIt != funcTable->end(); ++funcIt) {
@@ -48,11 +49,7 @@ void FunctionPrologueEpilogue::addPrologueEpilogue(FunctionTable *funcTable, con
 				continue;
 			}
 
-			if (identIt->second.dataType == DATA_TYPE_STRING) {
-				createStringObject(identIt->second.index, &funcIt->second.prologue, &stringObjectIndex, isGlobal);
-			} else if (identIt->second.dataType == DATA_TYPE_GROUP) {
-				checkGroupForString(identIt->second.dataTypeStr, grpTable, identIt->second.index, &funcIt->second.prologue, &stringObjectIndex, isGlobal);
-			}
+			checkIfIdentIsString(identIt, grpTable, 0, &funcIt->second.prologue, &stringObjectIndex, isGlobal);
 		}
 
 		deleteStringObject(&funcIt->second.epilogue, &stringObjectIndex, isGlobal);
@@ -104,16 +101,33 @@ void deleteStringObject(list<IntermediateRepresentation> *epilogueOut, const lis
 	}
 }
 
-void checkGroupForString(string groupName, const GroupTable *grpTable, uint32 index, list<IntermediateRepresentation> *prologueOut, list<uint64> *stringObjectIndexOut, bool isGlobal) {
+void checkGroupForString(string groupName, const GroupTable *grpTable, uint32 grpIndex, list<IntermediateRepresentation> *prologueOut, list<uint64> *stringObjectIndexOut, bool isGlobal) {
 	//Get the group
 	GroupTable::const_iterator group = grpTable->find(groupName);
 	
 	//Iterate through the group members to see if there are any string object
 	for (IdentTable::const_iterator gMIt = group->second.members.begin(); gMIt != group->second.members.end(); ++gMIt) {
-		if (gMIt->second.dataType == DATA_TYPE_STRING) {
-			createStringObject(index + gMIt->second.index, prologueOut, stringObjectIndexOut, isGlobal);
-		} else if (gMIt->second.dataType == DATA_TYPE_GROUP) {
-			checkGroupForString(gMIt->second.dataTypeStr, grpTable, index + gMIt->second.index, prologueOut, stringObjectIndexOut, isGlobal);
+		if (gMIt->second.isPointer) continue;
+		checkIfIdentIsString(gMIt, grpTable, grpIndex, prologueOut, stringObjectIndexOut, isGlobal);
+	}
+}
+
+void checkIfIdentIsString(IdentTable::const_iterator identIt, const GroupTable *grpTable, uint32 grpIndex, list<IntermediateRepresentation> *prologueOut, list<uint64> *stringObjectIndexOut, bool isGlobal) {
+	if (identIt->second.dataType == DATA_TYPE_STRING) {
+		if (identIt->second.isArray) {
+			for (uint32 i = 0; i < identIt->second.totalSize; i += 8) {
+				createStringObject(grpIndex + identIt->second.index + i, prologueOut, stringObjectIndexOut, isGlobal);
+			}
+		} else {
+			createStringObject(grpIndex + identIt->second.index, prologueOut, stringObjectIndexOut, isGlobal);
+		}
+	} else if (identIt->second.dataType == DATA_TYPE_GROUP) {
+		if (identIt->second.isArray) {
+			for (uint32 i = 0; i < identIt->second.totalSize; i += identIt->second.size) {
+				checkGroupForString(identIt->second.dataTypeStr, grpTable, grpIndex + identIt->second.index + i, prologueOut, stringObjectIndexOut, isGlobal);
+			}
+		} else {
+			checkGroupForString(identIt->second.dataTypeStr, grpTable, grpIndex + identIt->second.index, prologueOut, stringObjectIndexOut, isGlobal);
 		}
 	}
 }

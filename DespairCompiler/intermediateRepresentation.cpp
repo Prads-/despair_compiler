@@ -629,3 +629,38 @@ void IREmitter::opcode_fr_mfr_immi(std::list<IntermediateRepresentation> *irsOut
 
 	irsOut->push_back(ir);
 }
+
+void IREmitter::opcode_immi(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 immi) {
+	IntermediateRepresentation ir;
+	Operand operand;
+
+	ir.address = 0;
+	ir.label = 0;
+	ir.opcode = opcode;
+
+	operand.type = OPERAND_IMMI;
+	operand.value = immi;
+	ir.operands.push_back(operand);
+
+	irsOut->push_back(ir);
+}
+
+void IREmitter::opcode_r_fr_fr(std::list<IntermediateRepresentation> *irsOut, uint16 opcode, uint32 reg, uint32 fReg1, uint32 fReg2) {
+	IntermediateRepresentation ir;
+	Operand operand;
+
+	ir.address = 0;
+	ir.label = 0;
+	ir.opcode = opcode;
+
+	operand.type = OPERAND_REGISTER;
+	operand.value = reg;
+	ir.operands.push_back(operand);
+	operand.type = OPERAND_FLOAT_REGISTER;
+	operand.value = fReg1;
+	ir.operands.push_back(operand);
+	operand.value = fReg2;
+	ir.operands.push_back(operand);
+
+	irsOut->push_back(ir);
+}

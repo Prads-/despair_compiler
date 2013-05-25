@@ -63,6 +63,7 @@ void createSubModule(vector<TokenLine> *tokenLines, TokenModule *tokenModuleOut,
 			switch (tokenLines->at(counter).type) {
 				case TOKEN_LINE_COMPARE:
 				case TOKEN_LINE_LOOP:
+				case TOKEN_LINE_SWITCH:
 					++scopeLevel;
 				case TOKEN_LINE_VAR_DECLARE:
 				case TOKEN_LINE_FUNCTION_CALL:
@@ -71,6 +72,12 @@ void createSubModule(vector<TokenLine> *tokenLines, TokenModule *tokenModuleOut,
 				case TOKEN_LINE_POINTER_ASSIGNMENT:
 				case TOKEN_LINE_DEALLOCATION:
 				case TOKEN_LINE_THREAD_START:
+				case TOKEN_LINE_BREAK:
+				case TOKEN_LINE_CASE:
+				case TOKEN_LINE_FCASE:
+				case TOKEN_LINE_DEFAULT:
+				case TOKEN_LINE_FDEFAULT:
+				case TOKEN_LINE_CONTINUE:
 					tokenSubModule.tokenLines.push_back((*tokenLines)[counter++]);
 					break;
 				case TOKEN_LINE_CLOSE_SCOPE:

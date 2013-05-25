@@ -1,0 +1,17 @@
+;string getSubstring(pointer string, int, int)
+
+movp reg[0], (reg[255])
+movp reg[0], (reg[0])	;source string
+
+mov reg[1], (reg[255] + 8)	;offset
+mov reg[2], (reg[255] + 12)	;size
+
+shl reg[1], byte 32
+or reg[1], reg[2]
+
+out 40, lreg[0]
+out 48, lreg[251]
+out 56, lreg[1]
+out 64, 13
+
+ret

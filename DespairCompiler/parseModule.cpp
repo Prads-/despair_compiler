@@ -19,6 +19,7 @@
 #include "portAddress.h"
 #include "parseHelper.h"
 #include "stringParser.h"
+#include "switch.h"
 using namespace std;
 using namespace IREmitter;
 using namespace ExpressionParser;
@@ -26,16 +27,17 @@ using namespace FunctionPrologueEpilogue;
 using namespace MainFunction;
 using namespace ParseHelper;
 using namespace StringParser;
+using namespace SwitchParser;
 
-void parseLines(const vector<TokenLine> *tokenLines, uint32 &offset, list<IntermediateRepresentation> *irsOut);
+void parseLines(const vector<TokenLine> *tokenLines, uint32 &offset, list<IntermediateRepresentation> *irsOut, int lblBreak = 0, int lblContinue = 0);
 int parseExpression(const TokenLine *expression, IdentifierDataType dataType, Token terminator, int paramMemOffset, int intRegOffset, int floatRegOffset, bool isCompare, list<IntermediateRepresentation> *irsOut);
 void assignment(const TokenLine *tokenLine, list<IntermediateRepresentation> *irsOut);
 void pointerAssignment(const TokenLine *tokenLine, list<IntermediateRepresentation> *irsOut);
 IdentifierDataType memoryAllocation(const TokenLine *allocationLine, string *dataTypeStrOut, list<IntermediateRepresentation> *irsOut);
 void memoryDeallocation(const TokenLine *deallocationLine, list<IntermediateRepresentation> *irsOut);
-void compare(const vector<TokenLine> *tokenLines, uint32 tokenOffset, uint32 &lineOffset, int lblEnd, list<IntermediateRepresentation> *irsOut);
+void compare(const vector<TokenLine> *tokenLines, uint32 tokenOffset, uint32 &lineOffset, int lblEnd, list<IntermediateRepresentation> *irsOut, int lblBreak = 0, int lblContinue = 0);
 void lineReturn(const TokenLine *tokenLine, list<IntermediateRepresentation> *irsOut);
-void ifElseStatement(const vector<TokenLine> *tokenLines,uint32 &lineOffset, list<IntermediateRepresentation> *irsOut);
+void ifElseStatement(const vector<TokenLine> *tokenLines,uint32 &lineOffset, list<IntermediateRepresentation> *irsOut, int lblBreak = 0, int lblContinue = 0);
 void whileLoop(const vector<TokenLine> *tokenLines,uint32 &lineOffset, list<IntermediateRepresentation> *irsOut);
 void startThread(const TokenLine *tokenLine, list<IntermediateRepresentation> *irsOut);
 const Function *functionCall(const TokenLine *functionCallTokens, int paramMemOffset, int intRegOffset, int floatRegOffset, list<IntermediateRepresentation> *irsOut);
@@ -99,7 +101,7 @@ uint32 ParseModule::parseModule(const TokenModule *tokenModule, const GroupTable
 }
 
 //Goes through a function line by line and parses them using appropriate function
-void parseLines(const vector<TokenLine> *tokenLines, uint32 &offset, list<IntermediateRepresentation> *irsOut) {
+void parseLines(const vector<TokenLine> *tokenLines, uint32 &offset, list<IntermediateRepresentation> *irsOut, int lblBreak, int lblContinue) {
 	while (offset < tokenLines->size()) {
 		try {
 			switch (tokenLines->at(offset).type) {
@@ -114,7 +116,7 @@ void parseLines(const vector<TokenLine> *tokenLines, uint32 &offset, list<Interm
 					return;
 				case TOKEN_LINE_COMPARE:
 					if (tokenLines->at(offset).tokens.at(0).keyword == KW_IF) {
-						ifElseStatement(tokenLines, offset, irsOut);
+						ifElseStatement(tokenLines, offset, irsOut, lblBreak, lblContinue);
 					} else {
 						string errMsg = ERR_STR_INVALID_CMP_STATEMENT;
 						throw LockableException(errMsg);
@@ -127,8 +129,7 @@ void parseLines(const vector<TokenLine> *tokenLines, uint32 &offset, list<Interm
 					if (tokenLines->at(offset).tokens.at(0).keyword == KW_WHILE) {
 						whileLoop(tokenLines, offset, irsOut);
 					} else {
-						string errMsg = ERR_STR_INVALID_LOOP_STATEMENT;
-						throw LockableException(errMsg);
+						throw LockableException(ERR_STR_INVALID_LOOP_STATEMENT);
 					}
 					continue;
 				case TOKEN_LINE_RETURN:
@@ -139,6 +140,26 @@ void parseLines(const vector<TokenLine> *tokenLines, uint32 &offset, list<Interm
 					break;
 				case TOKEN_LINE_THREAD_START:
 					startThread(&tokenLines->at(offset), irsOut);
+					break;
+				case TOKEN_LINE_BREAK:
+					if (lblBreak == 0) {
+						LockableException e = LockableException(ERR_STR_INVALID_BREAK + tokenLines->at(offset).toString());
+						e.lock();
+						throw e;
+					}
+					opcode_label(irsOut, _JMP_IMMI, lblBreak);
+					break;
+				case TOKEN_LINE_CONTINUE:
+					if (lblContinue == 0) {
+						LockableException e = LockableException(ERR_STR_INVALID_CONTINUE + tokenLines->at(offset).toString());
+						e.lock();
+						throw e;
+					}
+					opcode_label(irsOut, _JMP_IMMI, lblContinue);
+					break;
+				case TOKEN_LINE_SWITCH:
+					parseSwitch(tokenLines, offset, label, lblContinue, irsOut);
+					continue;
 			}
 			++offset;
 		} catch (LockableException &e) {
@@ -573,7 +594,7 @@ void assignment(const TokenLine *tokenLine, list<IntermediateRepresentation> *ir
 					if (!isDestIdentIndexNotValid) {
 						opcode_r_r(irsOut, _MOV_R_R, REG_DEST_POINTER, (isDestIdentGlobal) ? REG_GLOBAL_BASE_POINTER : REG_BASE_POINTER);
 						opcode_r_immi(irsOut, _ADD_R_IMMI, REG_DEST_POINTER, destIdentIndex);
-						if (destIdent->isPointer) {
+						if (destIdent->dataType != DATA_TYPE_GROUP && destIdent->isPointer) {
 							opcode_r_mr(irsOut, _MOVP_R_MR, REG_DEST_POINTER, REG_DEST_POINTER);
 						}
 					}
@@ -629,7 +650,7 @@ void assignment(const TokenLine *tokenLine, list<IntermediateRepresentation> *ir
 
 					if (destIdent->dataType == DATA_TYPE_GROUP) {
 						//DMA trasfer from src group to destination group
-						dmaTransfer(REG_SRC_POINTER, REG_DEST_POINTER, destIdent->size, irsOut);
+						dmaTransfer(REG_SRC_POINTER, REG_DEST_POINTER, getDataTypeSize(destIdent->dataType, destIdent->dataTypeStr), irsOut);
 					} else {
 						opcode_r_mr(irsOut, _MOVP_R_MR, REG_SRC_POINTER, REG_SRC_POINTER);
 						opcode_mr_r(irsOut, _MOVP_MR_R, REG_DEST_POINTER, REG_SRC_POINTER);
@@ -786,7 +807,7 @@ void memoryDeallocation(const TokenLine *deallocationLine, list<IntermediateRepr
 }
 
 //tokenOffset should point to the token AFTER the first open round bracket
-void compare(const vector<TokenLine> *tokenLines, uint32 tokenOffset, uint32 &lineOffset, int lblEnd, list<IntermediateRepresentation> *irsOut) {
+void compare(const vector<TokenLine> *tokenLines, uint32 tokenOffset, uint32 &lineOffset, int lblEnd, list<IntermediateRepresentation> *irsOut, int lblBreak, int lblContinue) {
 	//Get the comparision expression
 	TokenLine compareExpression;
 	int bracketLevel = 0;
@@ -828,10 +849,10 @@ void compare(const vector<TokenLine> *tokenLines, uint32 tokenOffset, uint32 &li
 
 	//Jump to this label is condition is not met
 	int lblOut = label++;
-	opcode_r_immi(irsOut, _JC_R_IMMI, reg, lblOut);
+	opcode_r_label(irsOut, _JC_R_IMMI, reg, lblOut);
 
 	//Parse body
-	parseLines(tokenLines, ++lineOffset, irsOut);
+	parseLines(tokenLines, ++lineOffset, irsOut, lblBreak, lblContinue);
 
 	//After the body part is excuted, jump to this label
 	opcode_label(irsOut, _JMP_IMMI, lblEnd);
@@ -985,20 +1006,20 @@ void lineReturn(const TokenLine *tokenLine, list<IntermediateRepresentation> *ir
 	opcode_label(irsOut, _JMP_IMMI, functionEndLabel);
 }
 
-void ifElseStatement(const vector<TokenLine> *tokenLines,uint32 &lineOffset, list<IntermediateRepresentation> *irsOut) {
+void ifElseStatement(const vector<TokenLine> *tokenLines,uint32 &lineOffset, list<IntermediateRepresentation> *irsOut, int lblBreak, int lblContinue) {
 	//Separate a label for goting out of this 'if else' statement
 	int lblOut = label++;
 
 	//Parse the first if block
-	compare(tokenLines, 2, lineOffset, lblOut, irsOut);
+	compare(tokenLines, 2, lineOffset, lblOut, irsOut, lblBreak, lblContinue);
 
 	//Check if the blocks that follow after are else blocks
 	while(tokenLines->at(lineOffset).tokens.at(0).keyword == KW_ELSE) {
 		//Check if it is a 'else if' block or an 'else' block
 		if (tokenLines->at(lineOffset).tokens.at(1).keyword == KW_IF) {
-			compare(tokenLines, 3, lineOffset, lblOut, irsOut);
+			compare(tokenLines, 3, lineOffset, lblOut, irsOut, lblBreak, lblContinue);
 		} else {
-			parseLines(tokenLines, ++lineOffset, irsOut);
+			parseLines(tokenLines, ++lineOffset, irsOut, lblBreak, lblContinue);
 		}
 	}
 
@@ -1009,12 +1030,16 @@ void ifElseStatement(const vector<TokenLine> *tokenLines,uint32 &lineOffset, lis
 void whileLoop(const vector<TokenLine> *tokenLines,uint32 &lineOffset, list<IntermediateRepresentation> *irsOut) {
 	//Separate a label for iterating through the body until the condition is met
 	int lblLoop = label++;
+	//Another label to mark the end of the loop
+	int lblBreak = label++;
 
 	//Put the lblLoop on top of the iteration
 	opcode(irsOut, _NOP, lblLoop);
 
 	//Parse the loop block
-	compare(tokenLines, 2, lineOffset, lblLoop, irsOut);
+	compare(tokenLines, 2, lineOffset, lblLoop, irsOut, lblBreak, lblLoop);
+
+	opcode(irsOut, _NOP, lblBreak);
 }
 
 void startThread(const TokenLine *tokenLine, list<IntermediateRepresentation> *irsOut) {
